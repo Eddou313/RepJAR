@@ -3,6 +3,7 @@ package org.example;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,21 +14,38 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/") 
 public class frontServlet extends HttpServlet {
 
+    RequestDispatcher defaultDispatcher;
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-
-        resp.setContentType("text/plain; charset=UTF-8");
-        resp.setStatus(HttpServletResponse.SC_NOT_FOUND); 
-
-        try (PrintWriter out = resp.getWriter()) {
-            out.println("c est le servlet");
-        }
+    public void init() {
+        defaultDispatcher = getServletContext().getNamedDispatcher("default");
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        doGet(req, resp); 
+    protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String path = req.getRequestURI().substring(req.getContextPath().length());
+        
+        boolean resourceExists = getServletContext().getResource(path) != null;
+
+        if (resourceExists) {
+            defaultServe(req, res);
+        } else {
+            customServe(req, res);
+        }
+    }
+
+    private void customServe(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        try (PrintWriter out = res.getWriter()) {
+            String url = req.getRequestURI();
+            res.setContentType("text/html;charset=UTF-8");
+            out.println("<html><head><title>FrontServlet</title></head><body>");
+            out.println("<h1>URL demandée : " + url + "</h1>");
+            out.println("<p>Ceci est le FrontServlet. Aucune ressource trouvée pour cette URL.</p>");
+            out.println("</body></html>");
+        }
+    }
+
+    private void defaultServe(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        defaultDispatcher.forward(req, res);
     }
 }
