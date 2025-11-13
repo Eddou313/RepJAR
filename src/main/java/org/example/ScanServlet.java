@@ -57,11 +57,19 @@ public class ScanServlet extends HttpServlet {
 
                         if (methodAnnotation.path().equals(path)) {
                             found = true;
-
-                            out.println("<p><b>Classe :</b> " + clazz.getName() + "<br>");
-                            out.println("<b>Annotation classe (url) :</b> " + classAnnotation.url() + "<br>");
-                            out.println("<b>Méthode :</b> " + method.getName() + "<br>");
-                            out.println("<b>Annotation méthode (path) :</b> " + methodAnnotation.path() + "</p><hr>");
+                            try {
+                                Object instance = clazz.getDeclaredConstructor().newInstance();
+                                Method method1 = method;
+                                // out.println("<p><b>Classe :</b> " + clazz.getName() + "<br>");
+                                // out.println("<b>Annotation classe (url) :</b> " + classAnnotation.url() + "<br>");
+                                // out.println("<b>Méthode :</b> " + method.getName() + "<br>");
+                                // out.println("<b>Annotation méthode (path) :</b> " + methodAnnotation.path() + "</p><hr>");
+                                if (method1.getReturnType().getName().equals("java.lang.String")) {
+                                    out.println("<p>valeur retourner par la methode :</p><h5> " + method1.invoke(instance) + "</h5><hr>");
+                                }
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                            }
                         }
                     }
                 }
