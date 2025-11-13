@@ -4,11 +4,11 @@ package org.example;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.List;
 
 import java.lang.reflect.Method;
-import org.example.*;
 
 public class AnnotationScanner {
 
@@ -35,7 +35,8 @@ public class AnnotationScanner {
                 URL resource = resources.nextElement();
                 System.out.println(" Ressource trouvée: " + resource.getFile());
                 
-                File directory = new File(resource.getFile());
+                String decodedPath = URLDecoder.decode(resource.getFile(), "UTF-8");
+                File directory = new File(decodedPath);
 
                 if (directory.exists()) {
                     System.out.println(" Scan du dossier: " + directory.getAbsolutePath());
@@ -72,7 +73,7 @@ public class AnnotationScanner {
                 try {
                     Class<?> clazz = Class.forName(className);
 
-                    if (clazz.isAnnotationPresent(annotation.class)) {
+                    if (clazz.isAnnotationPresent(annotationType.class)) {
                         System.out.println(" CLASSE ANNOTÉE TROUVÉE: " + className);
                         annotatedClasses.add(clazz);
                     } else {
